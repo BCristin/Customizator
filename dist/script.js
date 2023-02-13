@@ -85,10 +85,10 @@ var Customizator = /*#__PURE__*/function () {
         scale = +e.target.value.replace(/x/g, "");
       }
       function recursy(element) {
-        element.childNodes.forEach(function (node) {
+        element.childNodes.forEach(function (node, i) {
           if (node.nodeName === "#text" && node.nodeValue.replace(/\s+/g, "").length > 0) {
             if (!node.parentNode.getAttribute("data-fz")) {
-              var value = window.getComputedStyle(node.parentNode, null).fontSize;
+              var value = window.getComputedStyle(node.parentNode, null).fontSize; // ia marimea textului
               node.parentNode.setAttribute("data-fz", +value.replace(/px/g, ""));
               node.parentNode.style.fontSize = node.parentNode.getAttribute("data-fz") * scale + "px";
             } else {
@@ -109,24 +109,39 @@ var Customizator = /*#__PURE__*/function () {
       console.log(e.target.value);
     }
   }, {
+    key: "injectStyle",
+    value: function injectStyle() {
+      var style = document.createElement("style");
+      style.innerHTML = "\n      .panel {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          position: fixed;\n          top: 10px;\n          right: 0;\n          border: 1px solid rgba(0,0,0, .2);\n          box-shadow: 0 0 20px rgba(0,0,0, .5);\n          width: 300px;\n          height: 60px;\n          background-color: #fff;\n      \n      }\n      \n      .scale {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          width: 100px;\n          height: 40px;\n          \n      }\n      .scale_btn {\n         display: block;\n         width: 40px;\n         height: 40px;\n         border: 1px solid rgba(0,0,0, .2);\n         border-radius: 4px;\n         font-size: 18px;\n     }\n      .color {\n          width: 40px;\n          height: 40px;\n      }";
+      document.querySelector("head").append(style);
+    }
+  }, {
     key: "render",
     value: function render() {
+      //bagams stilurile
+      this.injectStyle();
+      //cream ScaleInputS
       var scaleInputS = document.createElement("input");
-      var scaleInputM = document.createElement("input");
-      var panel = document.createElement("div");
-      panel.append(this.btnBlock, this.colorPicker);
       scaleInputS.classList.add("scale_btn");
-      scaleInputM.classList.add("scale_btn");
-      this.btnBlock.classList.add("scale");
-      this.colorPicker.classList.add("color");
       scaleInputS.setAttribute("type", "button");
-      scaleInputM.setAttribute("type", "button");
       scaleInputS.setAttribute("value", "1x");
+      //cream ScaleInputM
+      var scaleInputM = document.createElement("input");
+      scaleInputM.classList.add("scale_btn");
+      scaleInputM.setAttribute("type", "button");
       scaleInputM.setAttribute("value", "1.5x");
+      //Adaugam class la blocul de la Scale si inseram butoanele
+      this.btnBlock.classList.add("scale");
+      this.btnBlock.append(scaleInputS, scaleInputM);
+      //adaugam clasa si atributele la color
+      this.colorPicker.classList.add("color");
       this.colorPicker.setAttribute("type", "color");
       this.colorPicker.setAttribute("value", "#ffffff");
-      this.btnBlock.append(scaleInputS, scaleInputM);
+      //Cream si inseram blocul cu btn si color
+      var panel = document.createElement("div");
       panel.classList.add("panel");
+      panel.append(this.btnBlock, this.colorPicker);
+      //bagaam totul in body
       document.querySelector("body").append(panel);
     }
   }]);
