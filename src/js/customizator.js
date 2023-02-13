@@ -3,16 +3,20 @@ export default class Customizator {
 		this.btnBlock = document.createElement("div");
 		this.colorPicker = document.createElement("input");
 
+		this.clear = document.createElement("div");
+		this.scale = localStorage.getItem("scale") || 1;
+		this.color = localStorage.getItem("color") || "#ffffff";
+
 		this.btnBlock.addEventListener("click", (e) => this.onScaleChange(e));
 		this.colorPicker.addEventListener("input", (e) => this.onColorChange(e));
+		this.clear.addEventListener("click", () => this.reset());
 	}
 	onScaleChange(e) {
-		let scale;
 		const body = document.querySelector("body");
-		if (e.target.value) {
-			scale = +e.target.value.replace(/x/g, "");
+		if (e) {
+			this.scale = +e.target.value.replace(/x/g, "");
 		}
-		function recursy(element) {
+		const recursy = (element) => {
 			element.childNodes.forEach((node, i) => {
 				if (
 					node.nodeName === "#text" &&
@@ -22,25 +26,31 @@ export default class Customizator {
 						let value = window.getComputedStyle(node.parentNode, null).fontSize; // ia marimea textului
 						node.parentNode.setAttribute("data-fz", +value.replace(/px/g, ""));
 						node.parentNode.style.fontSize =
-							node.parentNode.getAttribute("data-fz") * scale + "px";
+							node.parentNode.getAttribute("data-fz") * this.scale + "px";
 					} else {
 						node.parentNode.style.fontSize =
-							node.parentNode.getAttribute("data-fz") * scale + "px";
+							node.parentNode.getAttribute("data-fz") * this.scale + "px";
 					}
 				} else {
 					recursy(node);
 				}
 			});
-		}
+		};
 		recursy(body);
+		localStorage.setItem("scale", this.scale);
 	}
 
 	onColorChange(e) {
 		const body = document.querySelector("body");
 		body.style.backgroundColor = e.target.value;
-		console.log(e.target.value);
+		localStorage.setItem("color", e.target.value);
 	}
 
+	setBgColor() {
+		const body = document.querySelector("body");
+		body.style.backgroundColor = this.color;
+		this.colorPicker.value = this.color;
+	}
 	injectStyle() {
 		const style = document.createElement("style");
 		style.innerHTML = `
@@ -78,13 +88,26 @@ export default class Customizator {
       .color {
           width: 40px;
           height: 40px;
+      }
+      .clear{
+         font-size:20px;
+         cursor:pointer;
       }`;
 		document.querySelector("head").append(style);
 	}
 
+	reset() {
+		localStorage.clear();
+		this.scale = 1;
+		this.color = "#ffffff";
+		this.setBgColor();
+		this.onScaleChange();
+	}
 	render() {
 		//bagams stilurile
 		this.injectStyle();
+		this.setBgColor();
+		this.onScaleChange();
 		//cream ScaleInputS
 		let scaleInputS = document.createElement("input");
 		scaleInputS.classList.add("scale_btn");
@@ -102,10 +125,14 @@ export default class Customizator {
 		this.colorPicker.classList.add("color");
 		this.colorPicker.setAttribute("type", "color");
 		this.colorPicker.setAttribute("value", "#ffffff");
+		//x
+		this.clear.innerHTML = "&times";
+		this.clear.classList.add("clear");
+
 		//Cream si inseram blocul cu btn si color
 		let panel = document.createElement("div");
 		panel.classList.add("panel");
-		panel.append(this.btnBlock, this.colorPicker);
+		panel.append(this.btnBlock, this.colorPicker, this.clear);
 		//bagaam totul in body
 		document.querySelector("body").append(panel);
 	}

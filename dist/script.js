@@ -69,57 +69,82 @@ var Customizator = /*#__PURE__*/function () {
     _classCallCheck(this, Customizator);
     this.btnBlock = document.createElement("div");
     this.colorPicker = document.createElement("input");
+    this.clear = document.createElement("div");
+    this.scale = localStorage.getItem("scale") || 1;
+    this.color = localStorage.getItem("color") || "#ffffff";
     this.btnBlock.addEventListener("click", function (e) {
       return _this.onScaleChange(e);
     });
     this.colorPicker.addEventListener("input", function (e) {
       return _this.onColorChange(e);
     });
+    this.clear.addEventListener("click", function () {
+      return _this.reset();
+    });
   }
   _createClass(Customizator, [{
     key: "onScaleChange",
     value: function onScaleChange(e) {
-      var scale;
+      var _this2 = this;
       var body = document.querySelector("body");
-      if (e.target.value) {
-        scale = +e.target.value.replace(/x/g, "");
+      if (e) {
+        this.scale = +e.target.value.replace(/x/g, "");
       }
-      function recursy(element) {
+      var recursy = function recursy(element) {
         element.childNodes.forEach(function (node, i) {
           if (node.nodeName === "#text" && node.nodeValue.replace(/\s+/g, "").length > 0) {
             if (!node.parentNode.getAttribute("data-fz")) {
               var value = window.getComputedStyle(node.parentNode, null).fontSize; // ia marimea textului
               node.parentNode.setAttribute("data-fz", +value.replace(/px/g, ""));
-              node.parentNode.style.fontSize = node.parentNode.getAttribute("data-fz") * scale + "px";
+              node.parentNode.style.fontSize = node.parentNode.getAttribute("data-fz") * _this2.scale + "px";
             } else {
-              node.parentNode.style.fontSize = node.parentNode.getAttribute("data-fz") * scale + "px";
+              node.parentNode.style.fontSize = node.parentNode.getAttribute("data-fz") * _this2.scale + "px";
             }
           } else {
             recursy(node);
           }
         });
-      }
+      };
       recursy(body);
+      localStorage.setItem("scale", this.scale);
     }
   }, {
     key: "onColorChange",
     value: function onColorChange(e) {
       var body = document.querySelector("body");
       body.style.backgroundColor = e.target.value;
-      console.log(e.target.value);
+      localStorage.setItem("color", e.target.value);
+    }
+  }, {
+    key: "setBgColor",
+    value: function setBgColor() {
+      var body = document.querySelector("body");
+      body.style.backgroundColor = this.color;
+      this.colorPicker.value = this.color;
     }
   }, {
     key: "injectStyle",
     value: function injectStyle() {
       var style = document.createElement("style");
-      style.innerHTML = "\n      .panel {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          position: fixed;\n          top: 10px;\n          right: 0;\n          border: 1px solid rgba(0,0,0, .2);\n          box-shadow: 0 0 20px rgba(0,0,0, .5);\n          width: 300px;\n          height: 60px;\n          background-color: #fff;\n      \n      }\n      \n      .scale {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          width: 100px;\n          height: 40px;\n          \n      }\n      .scale_btn {\n         display: block;\n         width: 40px;\n         height: 40px;\n         border: 1px solid rgba(0,0,0, .2);\n         border-radius: 4px;\n         font-size: 18px;\n     }\n      .color {\n          width: 40px;\n          height: 40px;\n      }";
+      style.innerHTML = "\n      .panel {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          position: fixed;\n          top: 10px;\n          right: 0;\n          border: 1px solid rgba(0,0,0, .2);\n          box-shadow: 0 0 20px rgba(0,0,0, .5);\n          width: 300px;\n          height: 60px;\n          background-color: #fff;\n      \n      }\n      \n      .scale {\n          display: flex;\n          justify-content: space-around;\n          align-items: center;\n          width: 100px;\n          height: 40px;\n          \n      }\n      .scale_btn {\n         display: block;\n         width: 40px;\n         height: 40px;\n         border: 1px solid rgba(0,0,0, .2);\n         border-radius: 4px;\n         font-size: 18px;\n     }\n      .color {\n          width: 40px;\n          height: 40px;\n      }\n      .clear{\n         font-size:20px;\n         cursor:pointer;\n      }";
       document.querySelector("head").append(style);
+    }
+  }, {
+    key: "reset",
+    value: function reset() {
+      localStorage.clear();
+      this.scale = 1;
+      this.color = "#ffffff";
+      this.setBgColor();
+      this.onScaleChange();
     }
   }, {
     key: "render",
     value: function render() {
       //bagams stilurile
       this.injectStyle();
+      this.setBgColor();
+      this.onScaleChange();
       //cream ScaleInputS
       var scaleInputS = document.createElement("input");
       scaleInputS.classList.add("scale_btn");
@@ -137,10 +162,14 @@ var Customizator = /*#__PURE__*/function () {
       this.colorPicker.classList.add("color");
       this.colorPicker.setAttribute("type", "color");
       this.colorPicker.setAttribute("value", "#ffffff");
+      //x
+      this.clear.innerHTML = "&times";
+      this.clear.classList.add("clear");
+
       //Cream si inseram blocul cu btn si color
       var panel = document.createElement("div");
       panel.classList.add("panel");
-      panel.append(this.btnBlock, this.colorPicker);
+      panel.append(this.btnBlock, this.colorPicker, this.clear);
       //bagaam totul in body
       document.querySelector("body").append(panel);
     }
